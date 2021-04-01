@@ -1,0 +1,9 @@
+{% extends 'layout.html' %}
+{% block body %}
+<h1>{{meal}}</h1>
+<ul class="list-group">
+    {% for i in ingredients %}
+    <li class="list-group-item">{{i}}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
