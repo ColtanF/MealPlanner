@@ -3,7 +3,7 @@
     <h1>Meals</h1>
     <ul class="list-group">
     {% for meal in meals %}
-        <li class="list-group-item"><a href="browse/{{meal}}">{{meal}}</a></li>
+        <li class="list-group-item"><a href="browse/{{meal.id}}">{{meal.recipeName}}</a></li>
     {% endfor %}
     </ul>
 {% endblock%}

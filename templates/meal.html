@@ -1,9 +1,15 @@
 {% extends 'layout.html' %}
 {% block body %}
-<h1>{{meal}}</h1>
+<h1>{{meal.recipeName}}</h1>
+<p>Calories (per serving): {{meal.calories}}</p>
+<p>Servings (per meal): {{meal.servingsPerMeal}}</p>
+<p>Serving size: {{meal.servingSize}}</p>
+<p>Ingredients: </p>
 <ul class="list-group">
-    {% for i in ingredients.split(',') %}
+    {% for i in meal.ingredients.split(',') %}
     <li class="list-group-item">{{i}}</li>
     {% endfor %}
 </ul>
+<br>
+<p>Recipe: {{meal.recipe}}</p>
 {% endblock %}

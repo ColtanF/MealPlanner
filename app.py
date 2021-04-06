@@ -1,6 +1,7 @@
 #! python
 from flask import Flask, render_template, flash, redirect, url_for, request
 from wtforms import Form, StringField, TextAreaField, IntegerField, validators
+from flask_mysqldb import MySQL
 
 app = Flask(__name__)
 app.debug = True
@@ -11,9 +12,19 @@ class Recipe():
         self.ingr = ingr
         self.cals = cals
         self.recipe = recipe
-meals = {}
-meals["Pizza"] = Recipe("Pizza", "Dough, Cheese, Sauce", "1000", "Make dough, put sauce and cheese on, bake at 400 degrees for 10 minutes.")
-meals["Chicken and Broccoli"] = Recipe("Chicken and Broccoli", "Chicken Breast, Broccoli", "400", "Cook chicken breast in air fryer at 375 degrees for 17 minutes, flipping once halfway through the cooking time. Steam broccoli.")
+
+# Configure Flask app with MySql
+# Note: to get this site up and running, the developer must do the following:
+# - Install MySQL
+# - Create a DB called mealplanner_db
+# - Create a table called meals (more later on)
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'qwerQWER1234!@#$' # Change this to something actually secure
+app.config['MYSQL_DB'] = 'mealplanner_db'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+mysql = MySQL(app)
 
 @app.route('/')
 def index():
@@ -25,17 +36,34 @@ def about():
 
 @app.route('/browse')
 def browse():
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Get meals
+    result = cur.execute("SELECT * FROM meals")
+
+    meals = cur.fetchall()
 
     return render_template('browse.html', meals=meals)
     
 @app.route('/browse/<string:id>/')
 def meal(id):
-    return render_template('meal.html', meal=id, ingredients=meals[id].ingr)
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Get meals
+    result = cur.execute("SELECT * FROM meals WHERE id = %s", (id))
+
+    meal = cur.fetchone()
+
+    return render_template('meal.html', meal=meal)
 
 class RecipeForm(Form):
     recipeName = StringField('Recipe Name', [validators.Length(min=1, max=200)])
     ingredients = TextAreaField('Ingredients', [validators.Length(min=5)])
-    calories = IntegerField('Calories', [validators.NumberRange(min=0)])
+    servingsPerMeal = IntegerField('Number of servings', [validators.NumberRange(min=0)])
+    servingSize = StringField('Serving Size', [validators.Length(min=1)])
+    calories = IntegerField('Calories per serving', [validators.NumberRange(min=0)])
     recipe = TextAreaField('Recipe', [validators.Length(min=30)])
 
 
@@ -45,15 +73,28 @@ def add_meal():
     if request.method == "POST" and form.validate():
         recipeName = form.recipeName.data
         ingredients = form.ingredients.data
+        servingsPerMeal = form.servingsPerMeal.data
+        servingSize = form.servingSize.data
         calories = form.calories.data
         recipe = form.recipe.data
 
-        meals[recipeName] = Recipe(recipeName, ingredients, calories, recipe)
+        # Create cursor
+        cur = mysql.connection.cursor()
+
+        # Execute SQL command - Insert meal into db
+        cur.execute("INSERT INTO meals(recipeName, ingredients, servingsPerMeal, servingSize, calories, recipe) VALUES(%s, %s, %s, %s, %s, %s)", (recipeName, ingredients, servingsPerMeal, servingSize, calories, recipe))
+
+        # Commit to db
+        mysql.connection.commit()
+
+        # Close the connection
+        cur.close()
+
         flash("Meal Added!", "success")
         return redirect(url_for("browse"))
 
     return render_template('add_meal.html', form=form)
 
 if __name__ == "__main__":
-    app.secret_key = 'secret123'
+    app.secret_key = 'secret123' # Again, change this to something secure or hide it in an .env file
     app.run(port=5002)
