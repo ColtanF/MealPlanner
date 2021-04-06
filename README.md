@@ -5,13 +5,11 @@ The basis of the web app is from Traversy Media's [Flask from Scratch series](ht
 
 ## Current Functionality
 
-Currently, the MealPlanner web app will allow a user to view the Home and About screens (not much going on there yet), browse existing meals, and add their own custom meals. Currently, meals are just stored in a map in the app.py file. 
+Currently, the MealPlanner web app will allow a user to view the Home and About screens (not much going on there yet), browse existing meals, and add their own custom meals. Meal information is now stored in a MySQL DB.
 
 ## Planned Functionality
 
-From a data storage standpoint, the largest change I plan on making is storing the meal data (and eventually user data) in a MySQL database.
-
-There are also menu items that are currently not in use. In the Tools menu, the Generate and Goals items currently do nothing, as do the Register/Login links.
+There are several menu items that are currently not in use. In the Tools menu, the Generate and Goals items currently do nothing, as do the Register/Login links.
 
 The Generate menu item will allow the user to input some parameters for the type of meal they want to eat, and the app will return a random meal meeting the user's requirements. This will be useful when a user knows they want to eat something with a certain amount of calories, or protein, or carbs, but can't decide exactly what they want to eat. Eventually, this will be expanded to generate an entire day's worth of meals.
 
